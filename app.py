@@ -2,17 +2,11 @@ import streamlit as st
 import pandas as pd
 import os
 
-# -------------------------
-# Page Config
-# -------------------------
-st.set_page_config(
-    page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002",
-    layout="wide"
-)
+st.set_page_config(page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002", layout="wide")
 
-# -------------------------
-# NAVY BLUE THEME (CSS)
-# -------------------------
+# -----------------------
+# NAVY BLUE THEME
+# -----------------------
 st.markdown("""
 <style>
 
@@ -26,12 +20,12 @@ st.markdown("""
         background-color: #001a35 !important;
     }
 
-    /* === General Text === */
+    /* === Text Color === */
     h1, h2, h3, h4, h5, h6, p, label, span, div {
         color: white !important;
     }
 
-    /* === Text Inputs === */
+    /* === Text Input Style === */
     .stTextInput>div>div>input {
         background-color: #00264d !important;
         color: white !important;
@@ -39,10 +33,18 @@ st.markdown("""
         border-radius: 6px;
     }
 
-    /* === Selectbox === */
+    /* === Selectbox (Dropdown) - change font color === */
     .stSelectbox>div>div {
-        background-color: #00264d !important;
-        color: white !important;
+        background-color: #00264d !important; /* box background */
+        color: white !important;              /* dropdown selected text color */
+        border: 1px solid #0059b3 !important;
+        border-radius: 6px;
+    }
+
+    /* Dropdown list items font color */
+    div[data-baseweb="select"] * {
+        color: white !important;              /* dropdown menu text */
+        background-color: #003366 !important; /* dropdown menu background */
     }
 
     /* === Buttons === */
@@ -59,7 +61,7 @@ st.markdown("""
         color: white !important;
     }
 
-    /* === Dataframe Box === */
+    /* === Dataframe Background === */
     .stDataFrame {
         background-color: white !important;
         border-radius: 8px;
@@ -69,10 +71,10 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# -----------------------
+# App Logic
+# -----------------------
 
-# -------------------------
-# Helper Function
-# -------------------------
 def find_col(df, name):
     name = name.lower()
     for col in df.columns:
@@ -83,10 +85,6 @@ def find_col(df, name):
             return col
     return None
 
-
-# -------------------------
-# AC Map
-# -------------------------
 ac_map = {
     "102-AVN": "102",
     "111-UDM": "111",
@@ -98,22 +96,10 @@ ac_map = {
     "117-KGM": "117"
 }
 
-
-# -------------------------
-# Heading
-# -------------------------
 st.title("திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002")
 
-
-# -------------------------
-# AC Selection
-# -------------------------
 selected_ac = st.selectbox("AC தேர்வு", list(ac_map.keys()), index=0)
 
-
-# -------------------------
-# Load CSV
-# -------------------------
 df = None
 csv_path = os.path.join("data", f"{ac_map[selected_ac]}.csv")
 
@@ -122,10 +108,6 @@ if os.path.exists(csv_path):
 else:
     st.error("CSV கிடைக்கவில்லை!")
 
-
-# -------------------------
-# Search Section
-# -------------------------
 if df is not None:
 
     fm = st.text_input("FM_NAME_V2")
