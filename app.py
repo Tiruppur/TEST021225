@@ -4,64 +4,90 @@ import os
 
 st.set_page_config(page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002", layout="wide")
 
-# -----------------------
-# NAVY BLUE THEME
-# -----------------------
+# ============================
+#     CUSTOM CSS THEME
+# ============================
 st.markdown("""
 <style>
 
-    /* === Main App Background === */
+    /* === MAIN BACKGROUND === */
     .stApp {
-        background-color: #001f3f !important;
+        background-color: #001f3f !important;   /* Navy Blue */
     }
 
-    /* === Sidebar Background === */
+    /* === SIDEBAR === */
     section[data-testid="stSidebar"] {
         background-color: #001a35 !important;
     }
 
-    /* === Text Color === */
+    /* === Global Text Color === */
     h1, h2, h3, h4, h5, h6, p, label, span, div {
         color: white !important;
     }
 
-    /* === Text Input Style === */
+    /* ============================================
+       SELECTBOX (Dropdown) – ORANGE THEME 
+       Bigger Font + Bold + Hover Color
+       ============================================ */
+
+    /* Selectbox main box */
+    .stSelectbox > div > div {
+        background-color: #00264d !important;
+        border: 2px solid orange !important;
+        color: orange !important;
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        border-radius: 6px !important;
+    }
+
+    /* Dropdown popup list */
+    .css-26l3qy-menu, .css-1n7v3ny-option {
+        background-color: #00264d !important;
+        color: orange !important;
+        font-size: 20px !important;
+        font-weight: 700 !important;
+    }
+
+    /* Hover effect */
+    .css-1n7v3ny-option:hover {
+        background-color: #ff8800 !important;  /* Orange highlight */
+        color: black !important;
+    }
+
+    /* Selected item */
+    .css-1n7v3ny-option.is-selected {
+        background-color: orange !important;
+        color: black !important;
+        font-weight: 900 !important;
+    }
+
+    /* Text Input Boxes */
     .stTextInput>div>div>input {
         background-color: #00264d !important;
         color: white !important;
-        border: 1px solid #0059b3 !important;
+        border: 2px solid orange !important;
         border-radius: 6px;
+        font-size: 18px !important;
+        font-weight: 600 !important;
     }
 
-    /* === Selectbox (Dropdown) - change font color === */
-    .stSelectbox>div>div {
-        background-color: #00264d !important; /* box background */
-        color: white !important;              /* dropdown selected text color */
-        border: 1px solid #0059b3 !important;
-        border-radius: 6px;
-    }
-
-    /* Dropdown list items font color */
-    div[data-baseweb="select"] * {
-        color: white !important;              /* dropdown menu text */
-        background-color: #003366 !important; /* dropdown menu background */
-    }
-
-    /* === Buttons === */
+    /* Buttons */
     .stButton>button {
-        background-color: #004080 !important;
+        background-color: #ff6600 !important;
         color: white !important;
         border-radius: 6px;
         padding: 8px 20px;
         border: 1px solid white;
+        font-size: 18px !important;
+        font-weight: 700 !important;
     }
 
     .stButton>button:hover {
-        background-color: #0059b3 !important;
-        color: white !important;
+        background-color: #ff8800 !important;
+        border: 1px solid white;
     }
 
-    /* === Dataframe Background === */
+    /* DataFrame background */
     .stDataFrame {
         background-color: white !important;
         border-radius: 8px;
@@ -71,9 +97,10 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# -----------------------
-# App Logic
-# -----------------------
+
+# ============================================
+#        MAIN APPLICATION LOGIC
+# ============================================
 
 def find_col(df, name):
     name = name.lower()
@@ -84,6 +111,7 @@ def find_col(df, name):
         if name in col.lower():
             return col
     return None
+
 
 ac_map = {
     "102-AVN": "102",
