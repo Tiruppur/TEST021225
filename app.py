@@ -5,100 +5,87 @@ import os
 st.set_page_config(page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002", layout="wide")
 
 # ============================
-#  CUSTOM CSS (Navy + Orange + Blink)
+#  TAMIL PHONETIC JS
+# ============================
+st.markdown("""
+<script src="https://www.gstatic.com/inputtools/js/ln/1/en/tamil.js"></script>
+<script>
+function enableTamilPhonetic() {
+    const boxes = document.querySelectorAll("input[type='text']");
+    boxes.forEach(box => {
+        box.addEventListener("keyup", function(e) {
+            if (e.key === " ") {
+                this.value = transliterate(this.value);
+            }
+        });
+    });
+}
+
+function transliterate(text) {
+    try {
+        return google.elements.transliteration.Transliterator.transliterate(text);
+    } catch(e) {
+        return text;
+    }
+}
+
+setTimeout(enableTamilPhonetic, 1500);
+</script>
+""", unsafe_allow_html=True)
+
+# ============================
+#  CUSTOM CSS
 # ============================
 st.markdown("""
 <style>
 
-    /* PAGE BACKGROUND */
-    .stApp {
-        background-color: #001f3f !important;
-    }
+    .stApp { background-color:#001f3f !important; }
 
-    /* CENTER + BLINK TITLE */
     .blink-title {
-        text-align: center;
-        font-size: 48px;
-        font-weight: bold;
-        color: orange;
-        animation: blinker 2s linear infinite;
+        text-align:center;
+        font-size:48px;
+        font-weight:bold;
+        color:orange;
+        animation:blinker 2s linear infinite;
     }
+    @keyframes blinker { 50% { opacity:0; } }
 
-    @keyframes blinker {
-        50% { opacity: 0; }
-    }
+    label, p, span, div { color:white !important; font-weight:bold !important; }
 
-    /* LABELS / TEXT WHITE */
-    h2, h3, label, p, span, div {
-        color: white !important;
-        font-weight: bold !important;
-    }
-
-    /* DROPDOWN BOX */
     div[data-baseweb="select"] > div {
-        background-color: #00264d !important;
-        border: 2px solid orange !important;
-        border-radius: 6px !important;
+        background-color:#00264d !important;
+        border:2px solid orange !important;
+        border-radius:6px;
     }
-
-    /* Selected text inside dropdown */
     div[data-baseweb="select"] span {
-        color: orange !important;
-        font-size: 18px !important;
-        font-weight: bold !important;
+        color:orange !important;
+        font-size:18px !important;
+        font-weight:bold !important;
     }
 
-    /* Dropdown menu background */
-    ul {
-        background-color: #001f3f !important;
-        border: 1px solid orange !important;
-    }
-
-    /* Dropdown items */
-    li {
-        color: white !important;
-        font-size: 18px !important;
-        font-weight: bold !important;
-    }
-
-    /* Hover item */
-    li:hover {
-        background-color: orange !important;
-        color: black !important;
-        font-weight: bold !important;
-    }
-
-    /* TEXT INPUT BOXES */
     .stTextInput>div>div>input {
-        background-color: #00264d !important;
-        color: orange !important;
-        border: 2px solid orange !important;
-        border-radius: 6px !important;
-        font-size: 18px !important;
-        font-weight: bold !important;
+        background:#00264d !important;
+        color:orange !important;
+        border:2px solid orange !important;
+        font-size:18px !important;
+        font-weight:bold !important;
     }
 
-    /* BUTTONS BIG + CENTER */
     div.stButton > button {
-        background-color: #ff8c00 !important;
-        color: black !important;
-        border-radius: 8px !important;
-        border: 2px solid white !important;
-        font-size: 22px !important;
-        font-weight: bold !important;
-        padding: 12px 40px !important;
-    }
-
-    div.stButton > button:hover {
-        background-color: #ffa733 !important;
-        border: 2px solid yellow !important;
+        background-color:#ff8c00 !important;
+        color:black !important;
+        border-radius:8px !important;
+        border:2px solid white !important;
+        font-size:22px !important;
+        font-weight:bold !important;
+        padding:12px 40px !important;
     }
 
 </style>
 """, unsafe_allow_html=True)
 
 # ============================
-# CENTER BLINK TITLE
+# BLINK TITLE
 # ============================
 st.markdown(
     "<h1 class='blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>",
@@ -134,70 +121,4 @@ ac_map = {
 
 selected_ac = st.selectbox("AC தேர்வு", list(ac_map.keys()), index=0)
 
-# ============================
-# Load CSV
-# ============================
-df = None
-csv_path = os.path.join("data", f"{ac_map[selected_ac]}.csv")
-
-if os.path.exists(csv_path):
-    df = pd.read_csv(csv_path)
-else:
-    st.error("CSV கிடைக்கவில்லை!")
-
-# ============================
-# SEARCH LOGIC
-# ============================
-if df is not None:
-
-    fm = st.text_input("FM_NAME_V2 (EXACT MATCH)")
-    rln = st.text_input("RLN_FM_NM_V2 (EXACT MATCH)")
-
-    # BUTTONS CENTERED
-    col1, col2, col3 = st.columns([3, 2, 3])
-
-    with col2:
-        colA, colB = st.columns(2)
-        with colA:
-            search = st.button("Search", use_container_width=True)
-        with colB:
-            reset = st.button("Reset", use_container_width=True)
-
-    # ============================
-    # SEARCH RESULT
-    # ============================
-    if search:
-
-        # ⭐ Block empty searches
-        if not fm and not rln:
-            st.error("FM_NAME_V2 அல்லது RLN_FM_NM_V2 குறைந்தது ஒன்றையாவது உள்ளிடவும்!")
-            st.stop()
-
-        fm_col = find_col(df, "FM_NAME_V2")
-        rln_col = find_col(df, "RLN_FM_NM_V2")
-
-        result = df.copy()
-
-        # CASE 1: BOTH EXACT MATCH
-        if fm and rln:
-            result = result[
-                (result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()) &
-                (result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower())
-            ]
-
-        # CASE 2: FM ONLY
-        elif fm:
-            result = result[
-                result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()
-            ]
-
-        # CASE 3: RLN ONLY
-        elif rln:
-            result = result[
-                result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower()
-            ]
-
-        st.dataframe(result, use_container_width=True)
-
-    if reset:
-        st.rerun()
+#
