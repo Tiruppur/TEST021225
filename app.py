@@ -10,12 +10,10 @@ st.set_page_config(page_title="திருப்பூர் மாவட்ட
 st.markdown("""
 <style>
 
-    /* PAGE BACKGROUND */
     .stApp {
         background-color: #001f3f !important;
     }
 
-    /* CENTER + BLINK TITLE */
     .blink-title {
         text-align: center;
         font-size: 48px;
@@ -28,47 +26,40 @@ st.markdown("""
         50% { opacity: 0; }
     }
 
-    /* LABELS / TEXT WHITE */
     h2, h3, label, p, span, div {
         color: white !important;
         font-weight: bold !important;
     }
 
-    /* DROPDOWN BOX */
     div[data-baseweb="select"] > div {
         background-color: #00264d !important;
         border: 2px solid orange !important;
         border-radius: 6px !important;
     }
 
-    /* Selected text inside dropdown */
     div[data-baseweb="select"] span {
         color: orange !important;
         font-size: 18px !important;
         font-weight: bold !important;
     }
 
-    /* Dropdown menu background */
     ul {
         background-color: #001f3f !important;
         border: 1px solid orange !important;
     }
 
-    /* Dropdown items */
     li {
         color: white !important;
         font-size: 18px !important;
         font-weight: bold !important;
     }
 
-    /* Hover item */
     li:hover {
         background-color: orange !important;
         color: black !important;
         font-weight: bold !important;
     }
 
-    /* TEXT INPUT BOXES */
     .stTextInput>div>div>input {
         background-color: #00264d !important;
         color: orange !important;
@@ -78,7 +69,6 @@ st.markdown("""
         font-weight: bold !important;
     }
 
-    /* BUTTONS BIG + CENTER */
     .big-btn button {
         background-color: #ff8c00 !important;
         color: black !important;
@@ -146,52 +136,20 @@ else:
     st.error("CSV கிடைக்கவில்லை!")
 
 # ============================
-# SEARCH LOGIC
+# SEARCH LOGIC (3 Cases Only)
 # ============================
 if df is not None:
 
     fm = st.text_input("FM_NAME_V2 (EXACT MATCH)")
     rln = st.text_input("RLN_FM_NM_V2 (EXACT MATCH)")
 
-    # BUTTONS SIDE BY SIDE & CENTER
-    col1, col2, col3 = st.columns([3, 2, 3])
+    colA, colB = st.columns([1, 1])
 
-    with col1:
-        st.write("")
+    with colA:
+        search = st.button("Search", use_container_width=True)
+    with colB:
+        reset = st.button("Reset", use_container_width=True)
 
-    with col2:
-        search_clicked = st.container()
-        reset_clicked = st.container()
-
-        with st.container():
-            colA, colB = st.columns(2)
-
-            with colA:
-                search = st.button("Search", key="search_btn", use_container_width=True)
-            with colB:
-                reset = st.button("Reset", key="reset_btn", use_container_width=True)
-
-        # Apply big button CSS
-        st.markdown("""
-            <style>
-                div.stButton > button {
-                    background-color: #ff8c00 !important;
-                    color: black !important;
-                    border-radius: 8px !important;
-                    border: 2px solid white !important;
-                    font-size: 22px !important;
-                    font-weight: bold !important;
-                    padding: 12px 40px !important;
-                }
-            </style>
-        """, unsafe_allow_html=True)
-
-    with col3:
-        st.write("")
-
-    # ============================
-    # SEARCH RESULT
-    # ============================
     if search:
 
         fm_col = find_col(df, "FM_NAME_V2")
@@ -199,24 +157,31 @@ if df is not None:
 
         result = df.copy()
 
-        # BOTH EXACT MATCH
-        if fm and rln:
+        # ============================
+        # 3 CASES EXACT MATCH ONLY
+        # ============================
+
+        # CASE 1: BOTH EXACT MATCH
+        if fm.strip() != "" and rln.strip() != "":
             result = result[
                 (result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()) &
                 (result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower())
             ]
 
-        # FM ONLY
-        elif fm:
+        # CASE 2: FM ONLY EXACT MATCH
+        elif fm.strip() != "":
             result = result[
                 result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()
             ]
 
-        # RLN ONLY
-        elif rln:
+        # CASE 3: RLN ONLY EXACT MATCH
+        elif rln.strip() != "":
             result = result[
                 result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower()
             ]
+
+        else:
+            st.warning("குறைந்தது ஒரு FIELD கட்டாயம் நிரப்ப வேண்டும்!")
 
         st.dataframe(result, use_container_width=True)
 
