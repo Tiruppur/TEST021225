@@ -55,7 +55,22 @@ if df is not None:
         if rln and rln_col:
             result = result[result[rln_col].astype(str).str.contains(rln, case=False, na=False)]
 
-        st.dataframe(result)
+        st.write("### Column Search Filters")
+
+        # ---- Per Column Search ----
+        col_inputs = {}
+        col_blocks = st.columns(len(result.columns))
+
+        for i, col in enumerate(result.columns):
+            col_inputs[col] = col_blocks[i].text_input(f"{col} தேடு")
+
+        filtered = result.copy()
+        for col, val in col_inputs.items():
+            if val:
+                filtered = filtered[filtered[col].astype(str).str.contains(val, case=False, na=False)]
+
+        # Display filtered result
+        st.dataframe(filtered, use_container_width=True)
 
     if st.button("Reset"):
         st.rerun()
