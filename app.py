@@ -5,7 +5,7 @@ import os
 st.set_page_config(page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002", layout="wide")
 
 # ============================
-#  CUSTOM CSS (Navy + Orange + Blink)
+#  CUSTOM CSS (Navy + Orange + Blink + Scroll)
 # ============================
 st.markdown("""
 <style>
@@ -15,15 +15,26 @@ st.markdown("""
         background-color: #001f3f !important;
     }
 
-    /* CENTER + BLINK TITLE */
-    .blink-title {
-        text-align: center;
+    /* CENTER SCROLLING + BLINK TITLE */
+    .scroll-blink-title {
         font-size: 48px;
         font-weight: bold;
         color: orange;
+        text-align: center;
         animation: blinker 2s linear infinite;
+        white-space: nowrap;
+        overflow: hidden;
+        display: block;
     }
 
+    /* SCROLL EFFECT */
+    marquee {
+        font-size: 48px;
+        font-weight: bold;
+        color: orange;
+    }
+
+    /* BLINK KEYFRAME */
     @keyframes blinker {
         50% { opacity: 0; }
     }
@@ -44,7 +55,7 @@ st.markdown("""
     /* Selected text inside dropdown */
     div[data-baseweb="select"] span {
         color: orange !important;
-        font-size: 18px !important;
+        font-size: 20px !important;
         font-weight: bold !important;
     }
 
@@ -57,7 +68,7 @@ st.markdown("""
     /* Dropdown items */
     li {
         color: white !important;
-        font-size: 18px !important;
+        font-size: 20px !important;
         font-weight: bold !important;
     }
 
@@ -74,7 +85,7 @@ st.markdown("""
         color: orange !important;
         border: 2px solid orange !important;
         border-radius: 6px !important;
-        font-size: 18px !important;
+        font-size: 20px !important;
         font-weight: bold !important;
     }
 
@@ -85,6 +96,7 @@ st.markdown("""
         border-radius: 6px !important;
         font-weight: bold !important;
         border: 2px solid white !important;
+        font-size: 20px !important;
     }
 
     .stButton>button:hover {
@@ -97,10 +109,10 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================
-# CENTER BLINK TITLE
+# SCROLLING + BLINK TITLE (CENTERED)
 # ============================
 st.markdown(
-    "<h1 class='blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>",
+    "<marquee behavior='scroll' direction='left' scrollamount='6' class='scroll-blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</marquee>",
     unsafe_allow_html=True
 )
 
