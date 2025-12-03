@@ -139,8 +139,8 @@ else:
 # ============================
 if df is not None:
 
-    fm = st.text_input("பெயர் தமிழில் உள்ளீடு செய்யவும் (EXACT MATCH)")
-    rln = st.text_input("உறவினர் பெயர் தமிழில் உள்ளீடு செய்யவும் (EXACT MATCH)")
+    fm = st.text_input("வாக்காளரின் பெயரை தமிழில் உள்ளீடு செய்யவும்  (EXACT MATCH - 2002-ன் வாக்காளர் பட்டியலின் படி)")
+    rln = st.text_input("வாக்காளரின் உறவினர் பெயரை தமிழில் உள்ளீடு செய்யவும் (EXACT MATCH - 2002-ன் வாக்காளர் பட்டியலின் படி)")
 
     col1, col2, col3 = st.columns([3, 2, 3])
 
@@ -185,4 +185,5 @@ if df is not None:
 
     if reset:
         st.rerun()
+
 
