@@ -5,62 +5,80 @@ import os
 st.set_page_config(page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002", layout="wide")
 
 # ============================
-#  CUSTOM CSS (Navy + Orange + Blink)
+#  TAMIL PHONETIC JS
+# ============================
+st.markdown("""
+<script src="https://www.gstatic.com/inputtools/js/ln/1/en/tamil.js"></script>
+<script>
+function enableTamilPhonetic() {
+    const boxes = document.querySelectorAll("input[type='text']");
+    boxes.forEach(box => {
+        box.addEventListener("keyup", function(e) {
+            if (e.key === " ") {
+                this.value = transliterate(this.value);
+            }
+        });
+    });
+}
+
+function transliterate(text) {
+    try {
+        return google.elements.transliteration.Transliterator.transliterate(text);
+    } catch(e) {
+        return text;
+    }
+}
+
+setTimeout(enableTamilPhonetic, 1500);
+</script>
+""", unsafe_allow_html=True)
+
+# ============================
+#  CUSTOM CSS
 # ============================
 st.markdown("""
 <style>
 
-    .stApp { background-color: #001f3f !important; }
+    .stApp { background-color:#001f3f !important; }
 
     .blink-title {
-        text-align: center;
-        font-size: 48px;
-        font-weight: bold;
-        color: orange;
-        animation: blinker 2s linear infinite;
+        text-align:center;
+        font-size:48px;
+        font-weight:bold;
+        color:orange;
+        animation:blinker 2s linear infinite;
     }
+    @keyframes blinker { 50% { opacity:0; } }
 
-    @keyframes blinker { 50% { opacity: 0; } }
-
-    h2, h3, label, p, span, div {
-        color: white !important;
-        font-weight: bold !important;
-    }
+    label, p, span, div { color:white !important; font-weight:bold !important; }
 
     div[data-baseweb="select"] > div {
-        background-color: #00264d !important;
-        border: 2px solid orange !important;
-        border-radius: 6px !important;
+        background-color:#00264d !important;
+        border:2px solid orange !important;
+        border-radius:6px;
     }
-
     div[data-baseweb="select"] span {
-        color: orange !important;
-        font-size: 18px !important;
-        font-weight: bold !important;
+        color:orange !important;
+        font-size:18px !important;
+        font-weight:bold !important;
     }
 
     .stTextInput>div>div>input {
-        background-color: #00264d !important;
-        color: orange !important;
-        border: 2px solid orange !important;
-        border-radius: 6px !important;
-        font-size: 18px !important;
-        font-weight: bold !important;
+        background:#00264d !important;
+        color:orange !important;
+        border:2px solid orange !important;
+        font-size:18px !important;
+        font-weight:bold !important;
     }
 
     div.stButton > button {
-        background-color: #ff8c00 !important;
-        color: black !important;
-        border-radius: 8px !important;
-        border: 2px solid white !important;
-        font-size: 22px !important;
-        font-weight: bold !important;
-        padding: 12px 40px !important;
-    }
-
-    div.stButton > button:hover {
-        background-color: #ffa733 !important;
-        border: 2px solid yellow !important;
+        background-color:#ff8c00 !important;
+        color:black !important;
+        border-radius:8px !important;
+        border:2px solid white !important;
+        font-size:22px !important;
+        font-weight:bold !important;
+        padding:12px 40px !important;
     }
 
 </style>
@@ -69,10 +87,13 @@ st.markdown("""
 # ============================
 # BLINK TITLE
 # ============================
-st.markdown("<h1 class='blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>", unsafe_allow_html=True)
+st.markdown(
+    "<h1 class='blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>",
+    unsafe_allow_html=True
+)
 
 # ============================
-# Helper
+# Helper function
 # ============================
 def find_col(df, name):
     name = name.lower()
@@ -85,7 +106,7 @@ def find_col(df, name):
     return None
 
 # ============================
-# AC MAP
+# AC Map
 # ============================
 ac_map = {
     "102-AVN": "102",
@@ -101,7 +122,7 @@ ac_map = {
 selected_ac = st.selectbox("AC தேர்வு", list(ac_map.keys()), index=0)
 
 # ============================
-# LOAD CSV
+# Load CSV
 # ============================
 df = None
 csv_path = os.path.join("data", f"{ac_map[selected_ac]}.csv")
@@ -112,26 +133,27 @@ else:
     st.error("CSV கிடைக்கவில்லை!")
 
 # ============================
-# SEARCH SECTION
+# SEARCH LOGIC
 # ============================
 if df is not None:
 
     fm = st.text_input("FM_NAME_V2 (EXACT MATCH)")
     rln = st.text_input("RLN_FM_NM_V2 (EXACT MATCH)")
 
-    col1, col2, col3 = st.columns([3,2,3])
+    col1, col2, col3 = st.columns([3, 2, 3])
+
     with col2:
         colA, colB = st.columns(2)
-        with colA:
-            search = st.button("Search", use_container_width=True)
-        with colB:
-            reset = st.button("Reset", use_container_width=True)
+        search = colA.button("Search")
+        reset = colB.button("Reset")
+
+    if reset:
+        st.rerun()
 
     if search:
 
-        # NO EMPTY SEARCH
         if not fm and not rln:
-            st.error("FM_NAME_V2 அல்லது RLN_FM_NM_V2 ஆகிய இரண்டில் ஒன்று கட்டாயம் உள்ளிட வேண்டும்!")
+            st.error("⚠ FM அல்லது RLN ஏதாவது ஒன்றை கட்டாயம் உள்ளிடவும்!")
             st.stop()
 
         fm_col = find_col(df, "FM_NAME_V2")
@@ -139,54 +161,23 @@ if df is not None:
 
         result = df.copy()
 
-        # CASE 1: BOTH EXACT MATCH
+        # CASE 1: BOTH FM + RLN
         if fm and rln:
             result = result[
-                (result[fm_col].astype(str).str.lower().str.strip() == fm.lower().strip()) &
-                (result[rln_col].astype(str).str.lower().str.strip() == rln.lower().strip())
+                (result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()) &
+                (result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower())
             ]
 
         # CASE 2: FM ONLY
         elif fm:
             result = result[
-                result[fm_col].astype(str).str.lower().str.strip() == fm.lower().strip()
+                result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()
             ]
 
         # CASE 3: RLN ONLY
         elif rln:
             result = result[
-                result[rln_col].astype(str).str.lower().str.strip() == rln.lower().strip()
+                result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower()
             ]
 
         st.dataframe(result, use_container_width=True)
-
-    if reset:
-        st.rerun()
-
-# ===========================================
-# ⭐ EXTRA FEATURE → ENGLISH → TAMIL BOX
-# ===========================================
-st.subheader("English → Tamil Auto Convert")
-
-tamil_box = st.text_area("Type here in English (after SPACE it converts):", key="tam_box")
-
-# JavaScript – Auto Convert English → Tamil
-st.markdown("""
-<script src="https://www.google.com/jsapi"></script>
-<script>
-google.load("elements", "1", { packages: "transliteration" });
-
-function onLoad() {
-    var options = {
-        sourceLanguage: 'en',
-        destinationLanguage: ['ta'],
-        transliterationEnabled: true
-    };
-
-    var control = new google.elements.transliteration.TransliterationControl(options);
-    control.makeTransliteratable(['tam_box']);
-}
-
-google.setOnLoadCallback(onLoad);
-</script>
-""", unsafe_allow_html=True)
