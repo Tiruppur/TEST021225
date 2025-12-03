@@ -199,19 +199,9 @@ if file_exists and df is not None:
             st.write(f"மொத்தம் முடிவுகள்: *{len(result)}*")
             st.dataframe(result, use_container_width=True)
 
-            # Download as CSV
-            if len(result) > 0:
-                csv_bytes = result.to_csv(index=False).encode("utf-8")
-                st.download_button(
-                    label="Download filtered results as CSV",
-                    data=csv_bytes,
-                    file_name=f"results_{ac_number}.csv",
-                    mime="text/csv"
-                )
+         
 
-            results_shown = True
-
-    # if no search yet, show hint
+             # if no search yet, show hint
     if not results_shown:
         st.info("Search பொத்தானை அழுத்தி தேடுங்கள் — அல்லது Reset பொத்தானை அழுத்தி மீண்டும் தொடங்குங்கள்.")
 
@@ -219,4 +209,5 @@ if file_exists and df is not None:
 # End Box
 # -------------------------------
 st.markdown('</div>', unsafe_allow_html=True)
+
 
