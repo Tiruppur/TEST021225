@@ -5,87 +5,89 @@ import os
 st.set_page_config(page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002", layout="wide")
 
 # ============================
-#  TAMIL PHONETIC JS
-# ============================
-st.markdown("""
-<script src="https://www.gstatic.com/inputtools/js/ln/1/en/tamil.js"></script>
-<script>
-function enableTamilPhonetic() {
-    const boxes = document.querySelectorAll("input[type='text']");
-    boxes.forEach(box => {
-        box.addEventListener("keyup", function(e) {
-            if (e.key === " ") {
-                this.value = transliterate(this.value);
-            }
-        });
-    });
-}
-
-function transliterate(text) {
-    try {
-        return google.elements.transliteration.Transliterator.transliterate(text);
-    } catch(e) {
-        return text;
-    }
-}
-
-setTimeout(enableTamilPhonetic, 1500);
-</script>
-""", unsafe_allow_html=True)
-
-# ============================
-#  CUSTOM CSS
+#  CUSTOM CSS (Navy + Orange + Blink)
 # ============================
 st.markdown("""
 <style>
 
-    .stApp { background-color:#001f3f !important; }
+    .stApp {
+        background-color: #001f3f !important;
+    }
 
     .blink-title {
-        text-align:center;
-        font-size:48px;
-        font-weight:bold;
-        color:orange;
-        animation:blinker 2s linear infinite;
+        text-align: center;
+        font-size: 48px;
+        font-weight: bold;
+        color: orange;
+        animation: blinker 2s linear infinite;
     }
-    @keyframes blinker { 50% { opacity:0; } }
 
-    label, p, span, div { color:white !important; font-weight:bold !important; }
+    @keyframes blinker {
+        50% { opacity: 0; }
+    }
+
+    h2, h3, label, p, span, div {
+        color: white !important;
+        font-weight: bold !important;
+    }
 
     div[data-baseweb="select"] > div {
-        background-color:#00264d !important;
-        border:2px solid orange !important;
-        border-radius:6px;
+        background-color: #00264d !important;
+        border: 2px solid orange !important;
+        border-radius: 6px !important;
     }
+
     div[data-baseweb="select"] span {
-        color:orange !important;
-        font-size:18px !important;
-        font-weight:bold !important;
+        color: orange !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+    }
+
+    ul {
+        background-color: #001f3f !important;
+        border: 1px solid orange !important;
+    }
+
+    li {
+        color: white !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+    }
+
+    li:hover {
+        background-color: orange !important;
+        color: black !important;
     }
 
     .stTextInput>div>div>input {
-        background:#00264d !important;
-        color:orange !important;
-        border:2px solid orange !important;
-        font-size:18px !important;
-        font-weight:bold !important;
+        background-color: #00264d !important;
+        color: orange !important;
+        border: 2px solid orange !important;
+        border-radius: 6px !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
     }
 
     div.stButton > button {
-        background-color:#ff8c00 !important;
-        color:black !important;
-        border-radius:8px !important;
-        border:2px solid white !important;
-        font-size:22px !important;
-        font-weight:bold !important;
-        padding:12px 40px !important;
+        background-color: #ff8c00 !important;
+        color: black !important;
+        border-radius: 8px !important;
+        border: 2px solid white !important;
+        font-size: 22px !important;
+        font-weight: bold !important;
+        padding: 12px 40px !important;
+    }
+
+    div.stButton > button:hover {
+        background-color: #ffa733 !important;
+        border: 2px solid yellow !important;
     }
 
 </style>
 """, unsafe_allow_html=True)
 
 # ============================
-# BLINK TITLE
+# CENTER BLINK TITLE
 # ============================
 st.markdown(
     "<h1 class='blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>",
@@ -144,16 +146,15 @@ if df is not None:
 
     with col2:
         colA, colB = st.columns(2)
-        search = colA.button("Search")
-        reset = colB.button("Reset")
-
-    if reset:
-        st.rerun()
+        with colA:
+            search = st.button("Search", use_container_width=True)
+        with colB:
+            reset = st.button("Reset", use_container_width=True)
 
     if search:
 
         if not fm and not rln:
-            st.error("⚠ FM அல்லது RLN ஏதாவது ஒன்றை கட்டாயம் உள்ளிடவும்!")
+            st.error("FM_NAME_V2 அல்லது RLN_FM_NM_V2 குறைந்தது ஒன்றையாவது உள்ளிடவும்!")
             st.stop()
 
         fm_col = find_col(df, "FM_NAME_V2")
@@ -161,7 +162,7 @@ if df is not None:
 
         result = df.copy()
 
-        # CASE 1: BOTH FM + RLN
+        # CASE 1: BOTH EXACT MATCH
         if fm and rln:
             result = result[
                 (result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()) &
@@ -181,3 +182,6 @@ if df is not None:
             ]
 
         st.dataframe(result, use_container_width=True)
+
+    if reset:
+        st.rerun()
