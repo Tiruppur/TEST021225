@@ -5,7 +5,7 @@ import os
 st.set_page_config(page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002", layout="wide")
 
 # ============================
-#  CUSTOM CSS (Navy + Orange + Blink + Scroll)
+#  CUSTOM CSS (Navy + Orange + Blink)
 # ============================
 st.markdown("""
 <style>
@@ -15,26 +15,15 @@ st.markdown("""
         background-color: #001f3f !important;
     }
 
-    /* CENTER SCROLLING + BLINK TITLE */
-    .scroll-blink-title {
-        font-size: 48px;
-        font-weight: bold;
-        color: orange;
+    /* CENTER + BLINK TITLE */
+    .blink-title {
         text-align: center;
-        animation: blinker 2s linear infinite;
-        white-space: nowrap;
-        overflow: hidden;
-        display: block;
-    }
-
-    /* SCROLL EFFECT */
-    marquee {
         font-size: 48px;
         font-weight: bold;
         color: orange;
+        animation: blinker 2s linear infinite;
     }
 
-    /* BLINK KEYFRAME */
     @keyframes blinker {
         50% { opacity: 0; }
     }
@@ -55,7 +44,7 @@ st.markdown("""
     /* Selected text inside dropdown */
     div[data-baseweb="select"] span {
         color: orange !important;
-        font-size: 20px !important;
+        font-size: 18px !important;
         font-weight: bold !important;
     }
 
@@ -68,7 +57,7 @@ st.markdown("""
     /* Dropdown items */
     li {
         color: white !important;
-        font-size: 20px !important;
+        font-size: 18px !important;
         font-weight: bold !important;
     }
 
@@ -85,34 +74,34 @@ st.markdown("""
         color: orange !important;
         border: 2px solid orange !important;
         border-radius: 6px !important;
-        font-size: 20px !important;
+        font-size: 18px !important;
         font-weight: bold !important;
     }
 
-    /* BUTTONS */
-    .stButton>button {
+    /* BUTTONS BIG + CENTER */
+    .big-btn button {
         background-color: #ff8c00 !important;
         color: black !important;
-        border-radius: 6px !important;
-        font-weight: bold !important;
+        border-radius: 8px !important;
         border: 2px solid white !important;
-        font-size: 20px !important;
+        font-size: 22px !important;
+        font-weight: bold !important;
+        padding: 15px 40px !important;
     }
 
-    .stButton>button:hover {
+    .big-btn button:hover {
         background-color: #ffa733 !important;
         border: 2px solid yellow !important;
-        color: black !important;
     }
 
 </style>
 """, unsafe_allow_html=True)
 
 # ============================
-# SCROLLING + BLINK TITLE (CENTERED)
+# CENTER BLINK TITLE
 # ============================
 st.markdown(
-    "<marquee behavior='scroll' direction='left' scrollamount='6' class='scroll-blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</marquee>",
+    "<h1 class='blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>",
     unsafe_allow_html=True
 )
 
@@ -164,7 +153,46 @@ if df is not None:
     fm = st.text_input("FM_NAME_V2 (EXACT MATCH)")
     rln = st.text_input("RLN_FM_NM_V2 (EXACT MATCH)")
 
-    if st.button("Search"):
+    # BUTTONS SIDE BY SIDE & CENTER
+    col1, col2, col3 = st.columns([3, 2, 3])
+
+    with col1:
+        st.write("")
+
+    with col2:
+        search_clicked = st.container()
+        reset_clicked = st.container()
+
+        with st.container():
+            colA, colB = st.columns(2)
+
+            with colA:
+                search = st.button("Search", key="search_btn", use_container_width=True)
+            with colB:
+                reset = st.button("Reset", key="reset_btn", use_container_width=True)
+
+        # Apply big button CSS
+        st.markdown("""
+            <style>
+                div.stButton > button {
+                    background-color: #ff8c00 !important;
+                    color: black !important;
+                    border-radius: 8px !important;
+                    border: 2px solid white !important;
+                    font-size: 22px !important;
+                    font-weight: bold !important;
+                    padding: 12px 40px !important;
+                }
+            </style>
+        """, unsafe_allow_html=True)
+
+    with col3:
+        st.write("")
+
+    # ============================
+    # SEARCH RESULT
+    # ============================
+    if search:
 
         fm_col = find_col(df, "FM_NAME_V2")
         rln_col = find_col(df, "RLN_FM_NM_V2")
@@ -192,5 +220,5 @@ if df is not None:
 
         st.dataframe(result, use_container_width=True)
 
-    if st.button("Reset"):
+    if reset:
         st.rerun()
