@@ -146,11 +146,7 @@ if selected_ac:
 # If data loaded, show search UI
 # -------------------------------
 if file_exists and df is not None:
-    st.write("### வாக்காளர் பெயர் தேடல்")
-
-    # Show available columns (small info) so user knows CSV structure
-    with st.expander("CSV உள்ள உள்ளத்துகள் (columns) பார்க்க"):
-        st.write(list(df.columns))
+   
 
     # Input fields
     col1, col2 = st.columns(2)
@@ -223,3 +219,4 @@ if file_exists and df is not None:
 # End Box
 # -------------------------------
 st.markdown('</div>', unsafe_allow_html=True)
+
