@@ -1,61 +1,38 @@
 import streamlit as st
 import pandas as pd
 import os
+from indic_transliteration.sanscript import transliterate, ITAM, TAMIL
 
 st.set_page_config(page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002", layout="wide")
 
+
 # ============================
-# CUSTOM NAVY + ORANGE THEME
+# CUSTOM ORANGE THEME
 # ============================
 st.markdown("""
 <style>
+    .stApp { background-color: #001f3f !important; }
+    h1, h2, h3, label, p, span, div { color: white !important; font-weight: bold; }
 
-    /* Main App Background */
-    .stApp {
-        background-color: #001f3f !important;
-    }
-
-    /* Text Colors */
-    h1, h2, h3, h4, label, p, span, div {
-        color: white !important;
-        font-weight: bold;
-    }
-
-    /* DROPDOWN BOX STYLE */
+    /* Dropdown */
     div[data-baseweb="select"] > div {
         background-color: #00264d !important;
         border: 2px solid orange !important;
         border-radius: 6px !important;
     }
-
-    /* Dropdown Selected Text */
     div[data-baseweb="select"] span {
         color: orange !important;
         font-size: 18px !important;
         font-weight: bold !important;
     }
-
-    /* Dropdown Menu List Background */
     ul {
         background-color: #001f3f !important;
         border: 1px solid orange !important;
     }
+    li { color: white !important; font-size: 18px !important; font-weight: bold !important; }
+    li:hover { background-color: orange !important; color: black !important; font-weight: bold !important; }
 
-    /* Dropdown Items */
-    li {
-        color: white !important;
-        font-size: 18px !important;
-        font-weight: bold !important;
-    }
-
-    /* DROPDOWN HOVER EFFECT */
-    li:hover {
-        background-color: orange !important;
-        color: black !important;
-        font-weight: bold !important;
-    }
-
-    /* Text Input Boxes */
+    /* Text box style */
     .stTextInput>div>div>input {
         background-color: #00264d !important;
         color: orange !important;
@@ -73,7 +50,6 @@ st.markdown("""
         font-weight: bold !important;
         border: 2px solid white !important;
     }
-
     .stButton>button:hover {
         background-color: #ffa733 !important;
         color: black !important;
@@ -84,8 +60,9 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+
 # ============================
-# HELPER FUNCTION
+# Helper
 # ============================
 def find_col(df, name):
     name = name.lower()
@@ -96,6 +73,7 @@ def find_col(df, name):
         if name in col.lower():
             return col
     return None
+
 
 
 # ============================
@@ -113,20 +91,33 @@ ac_map = {
 }
 
 
+
 st.title("திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002")
 
 selected_ac = st.selectbox("AC தேர்வு", list(ac_map.keys()), index=0)
 
+
 # ============================
 # LOAD CSV
 # ============================
-df = None
 csv_path = os.path.join("data", f"{ac_map[selected_ac]}.csv")
 
 if os.path.exists(csv_path):
     df = pd.read_csv(csv_path)
 else:
     st.error("CSV கிடைக்கவில்லை!")
+    df = None
+
+
+
+# ============================
+# PHONETIC INPUT FUNCTION
+# ============================
+def phonetic_convert(eng_text):
+    if not eng_text:
+        return ""
+    return transliterate(eng_text, ITAM, TAMIL)
+
 
 
 # ============================
@@ -134,8 +125,15 @@ else:
 # ============================
 if df is not None:
 
-    fm = st.text_input("FM_NAME_V2 (EXACT MATCH)")
-    rln = st.text_input("RLN_FM_NM_V2 (EXACT MATCH)")
+    # English → Tamil phonetic typing
+    fm_eng = st.text_input("FM_NAME_V2 (Type English → Tamil)")
+    rln_eng = st.text_input("RLN_FM_NM_V2 (Type English → Tamil)")
+
+    fm = phonetic_convert(fm_eng)
+    rln = phonetic_convert(rln_eng)
+
+    st.write(f"👉 Tamil FM: **{fm}**")
+    st.write(f"👉 Tamil RLN: **{rln}**")
 
     if st.button("Search"):
 
@@ -144,30 +142,21 @@ if df is not None:
 
         result = df.copy()
 
-        # -----------------------
         # EXACT MATCH LOGIC
-        # -----------------------
-
-        # 1️⃣ If BOTH fields entered → Exact match for both
         if fm and rln:
             result = result[
-                (result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()) &
-                (result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower())
+                (result[fm_col].astype(str).str.strip().str.lower() == fm.lower()) &
+                (result[rln_col].astype(str).str.strip().str.lower() == rln.lower())
             ]
 
-        # 2️⃣ Only FM entered → Exact match for FM
         elif fm:
-            result = result[
-                result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()
-            ]
+            result = result[result[fm_col].astype(str).str.strip().str.lower() == fm.lower()]
 
-        # 3️⃣ Only RLN entered → Exact match for RLN
         elif rln:
-            result = result[
-                result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower()
-            ]
+            result = result[result[rln_col].astype(str).str.strip().str.lower() == rln.lower()]
 
         st.dataframe(result, use_container_width=True)
+
 
     if st.button("Reset"):
         st.rerun()
