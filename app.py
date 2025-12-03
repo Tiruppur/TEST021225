@@ -5,105 +5,67 @@ import os
 st.set_page_config(page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002", layout="wide")
 
 # ============================
-#  CUSTOM CSS (Navy + Orange + Blink)
+# CUSTOM CSS
 # ============================
 st.markdown("""
 <style>
 
-    /* PAGE BACKGROUND */
-    .stApp {
-        background-color: #001f3f !important;
-    }
+.stApp {
+    background-color: #001f3f !important;
+}
 
-    /* CENTER + BLINK TITLE */
-    .blink-title {
-        text-align: center;
-        font-size: 48px;
-        font-weight: bold;
-        color: orange;
-        animation: blinker 2s linear infinite;
-    }
 
-    @keyframes blinker {
-        50% { opacity: 0; }
-    }
+/* BLINKING TITLE */
+.blink-title {
+    text-align: center;
+    font-size: 48px;
+    font-weight: bold;
+    color: orange;
+    animation: blinker 2s linear infinite;
+}
+@keyframes blinker { 50% { opacity: 0; } }
 
-    /* LABELS / TEXT WHITE */
-    h2, h3, label, p, span, div {
-        color: white !important;
-        font-weight: bold !important;
-    }
 
-    /* DROPDOWN BOX */
-    div[data-baseweb="select"] > div {
-        background-color: #00264d !important;
-        border: 2px solid orange !important;
-        border-radius: 6px !important;
-    }
+/* Input Box */
+.stTextInput>div>div>input {
+    background-color: #00264d !important;
+    color: orange !important;
+    border: 2px solid orange !important;
+    border-radius: 6px !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+}
 
-    /* Selected text inside dropdown */
-    div[data-baseweb="select"] span {
-        color: orange !important;
-        font-size: 18px !important;
-        font-weight: bold !important;
-    }
 
-    /* Dropdown menu background */
-    ul {
-        background-color: #001f3f !important;
-        border: 1px solid orange !important;
-    }
+/* BUTTONS — BIG + CENTER */
+.center-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+}
 
-    /* Dropdown items */
-    li {
-        color: white !important;
-        font-size: 18px !important;
-        font-weight: bold !important;
-    }
+.big-btn {
+    background-color: #ff8c00 !important;
+    color: black !important;
+    border-radius: 10px !important;
+    border: 2px solid white !important;
+    padding: 15px 50px !important;
+    font-size: 25px !important;
+    font-weight: bold !important;
+}
 
-    /* Hover item */
-    li:hover {
-        background-color: orange !important;
-        color: black !important;
-        font-weight: bold !important;
-    }
-
-    /* TEXT INPUT BOXES */
-    .stTextInput>div>div>input {
-        background-color: #00264d !important;
-        color: orange !important;
-        border: 2px solid orange !important;
-        border-radius: 6px !important;
-        font-size: 18px !important;
-        font-weight: bold !important;
-    }
-
-    /* BUTTONS BIG + CENTER */
-    .big-btn button {
-        background-color: #ff8c00 !important;
-        color: black !important;
-        border-radius: 8px !important;
-        border: 2px solid white !important;
-        font-size: 22px !important;
-        font-weight: bold !important;
-        padding: 15px 40px !important;
-    }
-
-    .big-btn button:hover {
-        background-color: #ffa733 !important;
-        border: 2px solid yellow !important;
-    }
+.big-btn:hover {
+    background-color: #ffa733 !important;
+    border: 2px solid yellow !important;
+}
 
 </style>
 """, unsafe_allow_html=True)
 
 # ============================
-# CENTER BLINK TITLE
+# TITLE
 # ============================
-st.markdown(
-    "<h1 class='blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>",
-    unsafe_allow_html=True
-)
+st.markdown("<h1 class='blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>", unsafe_allow_html=True)
 
 # ============================
 # Helper function
@@ -119,7 +81,7 @@ def find_col(df, name):
     return None
 
 # ============================
-# AC Map
+# AC MAP
 # ============================
 ac_map = {
     "102-AVN": "102",
@@ -137,88 +99,62 @@ selected_ac = st.selectbox("AC தேர்வு", list(ac_map.keys()), index=0
 # ============================
 # Load CSV
 # ============================
-df = None
 csv_path = os.path.join("data", f"{ac_map[selected_ac]}.csv")
 
-if os.path.exists(csv_path):
-    df = pd.read_csv(csv_path)
-else:
+if not os.path.exists(csv_path):
     st.error("CSV கிடைக்கவில்லை!")
+    st.stop()
+
+df = pd.read_csv(csv_path)
 
 # ============================
-# SEARCH LOGIC
+# SEARCH INPUT
 # ============================
-if df is not None:
+fm = st.text_input("FM_NAME_V2 (EXACT MATCH)")
+rln = st.text_input("RLN_FM_NM_V2 (EXACT MATCH)")
 
-    fm = st.text_input("FM_NAME_V2 (EXACT MATCH)")
-    rln = st.text_input("RLN_FM_NM_V2 (EXACT MATCH)")
+# ============================
+# BUTTONS (CENTER)
+# ============================
+st.markdown('<div class="center-buttons">', unsafe_allow_html=True)
 
-    # BUTTONS SIDE BY SIDE & CENTER
-    col1, col2, col3 = st.columns([3, 2, 3])
+search = st.button("Search", key="search_btn")
+reset = st.button("Reset", key="reset_btn")
 
-    with col1:
-        st.write("")
+st.markdown('</div>', unsafe_allow_html=True)
 
-    with col2:
-        search_clicked = st.container()
-        reset_clicked = st.container()
+# Apply button styling
+st.markdown("""
+<style>
+#search_btn button, #reset_btn button {
+    background-color: #ff8c00 !important;
+    color: black !important;
+    border-radius: 10px !important;
+    border: 2px solid white !important;
+    padding: 15px 50px !important;
+    font-size: 25px !important;
+    font-weight: bold !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
-        with st.container():
-            colA, colB = st.columns(2)
+# ============================
+# SEARCH LOGIC (COMPULSORY BOTH FIELDS)
+# ============================
+if search:
 
-            with colA:
-                search = st.button("Search", key="search_btn", use_container_width=True)
-            with colB:
-                reset = st.button("Reset", key="reset_btn", use_container_width=True)
-
-        # Apply big button CSS
-        st.markdown("""
-            <style>
-                div.stButton > button {
-                    background-color: #ff8c00 !important;
-                    color: black !important;
-                    border-radius: 8px !important;
-                    border: 2px solid white !important;
-                    font-size: 22px !important;
-                    font-weight: bold !important;
-                    padding: 12px 40px !important;
-                }
-            </style>
-        """, unsafe_allow_html=True)
-
-    with col3:
-        st.write("")
-
-    # ============================
-    # SEARCH RESULT
-    # ============================
-    if search:
-
+    if not fm.strip() or not rln.strip():
+        st.warning("⚠️ தயவு செய்து FM_NAME_V2 மற்றும் RLN_FM_NM_V2 இரண்டையும் உள்ளிடவும்!")
+    else:
         fm_col = find_col(df, "FM_NAME_V2")
         rln_col = find_col(df, "RLN_FM_NM_V2")
 
-        result = df.copy()
-
-        # BOTH EXACT MATCH
-        if fm and rln:
-            result = result[
-                (result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()) &
-                (result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower())
-            ]
-
-        # FM ONLY
-        elif fm:
-            result = result[
-                result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()
-            ]
-
-        # RLN ONLY
-        elif rln:
-            result = result[
-                result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower()
-            ]
+        result = df[
+            (df[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()) &
+            (df[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower())
+        ]
 
         st.dataframe(result, use_container_width=True)
 
-    if reset:
-        st.rerun()
+if reset:
+    st.rerun()
