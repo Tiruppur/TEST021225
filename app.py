@@ -5,103 +5,88 @@ import os
 st.set_page_config(page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002", layout="wide")
 
 # ============================
-#     CUSTOM CSS THEME
+# CUSTOM NAVY + ORANGE THEME
 # ============================
 st.markdown("""
 <style>
 
-    /* === MAIN BACKGROUND === */
+    /* Main App Background */
     .stApp {
-        background-color: #001f3f !important;   /* Navy Blue */
+        background-color: #001f3f !important;
     }
 
-    /* === SIDEBAR === */
-    section[data-testid="stSidebar"] {
-        background-color: #001a35 !important;
-    }
-
-    /* === Global Text Color === */
-    h1, h2, h3, h4, h5, h6, p, label, span, div {
+    /* Text Colors */
+    h1, h2, h3, h4, label, p, span, div {
         color: white !important;
+        font-weight: bold;
     }
 
-    /* ============================================
-       SELECTBOX (Dropdown) – ORANGE THEME 
-       Bigger Font + Bold + Hover Color
-       ============================================ */
-
-    /* Selectbox main box */
-    .stSelectbox > div > div {
+    /* DROPDOWN BOX STYLE */
+    div[data-baseweb="select"] > div {
         background-color: #00264d !important;
         border: 2px solid orange !important;
-        color: orange !important;
-        font-size: 20px !important;
-        font-weight: 700 !important;
         border-radius: 6px !important;
     }
 
-    /* Dropdown popup list */
-    .css-26l3qy-menu, .css-1n7v3ny-option {
-        background-color: #00264d !important;
+    /* Dropdown Selected Text */
+    div[data-baseweb="select"] span {
         color: orange !important;
-        font-size: 20px !important;
-        font-weight: 700 !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
     }
 
-    /* Hover effect */
-    .css-1n7v3ny-option:hover {
-        background-color: #ff8800 !important;  /* Orange highlight */
-        color: black !important;
+    /* Dropdown Menu List Background */
+    ul {
+        background-color: #001f3f !important;
+        border: 1px solid orange !important;
     }
 
-    /* Selected item */
-    .css-1n7v3ny-option.is-selected {
+    /* Dropdown Items */
+    li {
+        color: white !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+    }
+
+    /* DROPDOWN HOVER EFFECT */
+    li:hover {
         background-color: orange !important;
         color: black !important;
-        font-weight: 900 !important;
+        font-weight: bold !important;
     }
 
     /* Text Input Boxes */
     .stTextInput>div>div>input {
         background-color: #00264d !important;
-        color: white !important;
+        color: orange !important;
         border: 2px solid orange !important;
-        border-radius: 6px;
+        border-radius: 6px !important;
         font-size: 18px !important;
-        font-weight: 600 !important;
+        font-weight: bold !important;
     }
 
     /* Buttons */
     .stButton>button {
-        background-color: #ff6600 !important;
-        color: white !important;
-        border-radius: 6px;
-        padding: 8px 20px;
-        border: 1px solid white;
-        font-size: 18px !important;
-        font-weight: 700 !important;
+        background-color: #ff8c00 !important;
+        color: black !important;
+        border-radius: 6px !important;
+        font-weight: bold !important;
+        border: 2px solid white !important;
     }
 
     .stButton>button:hover {
-        background-color: #ff8800 !important;
-        border: 1px solid white;
-    }
-
-    /* DataFrame background */
-    .stDataFrame {
-        background-color: white !important;
-        border-radius: 8px;
-        padding: 10px;
+        background-color: #ffa733 !important;
+        color: black !important;
+        border: 2px solid yellow !important;
     }
 
 </style>
 """, unsafe_allow_html=True)
 
 
-# ============================================
-#        MAIN APPLICATION LOGIC
-# ============================================
-
+# ============================
+# HELPER FUNCTION
+# ============================
 def find_col(df, name):
     name = name.lower()
     for col in df.columns:
@@ -113,6 +98,9 @@ def find_col(df, name):
     return None
 
 
+# ============================
+# AC Mapping
+# ============================
 ac_map = {
     "102-AVN": "102",
     "111-UDM": "111",
@@ -124,10 +112,14 @@ ac_map = {
     "117-KGM": "117"
 }
 
+
 st.title("திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002")
 
 selected_ac = st.selectbox("AC தேர்வு", list(ac_map.keys()), index=0)
 
+# ============================
+# LOAD CSV
+# ============================
 df = None
 csv_path = os.path.join("data", f"{ac_map[selected_ac]}.csv")
 
@@ -136,23 +128,44 @@ if os.path.exists(csv_path):
 else:
     st.error("CSV கிடைக்கவில்லை!")
 
+
+# ============================
+# SEARCH LOGIC
+# ============================
 if df is not None:
 
-    fm = st.text_input("FM_NAME_V2")
-    rln = st.text_input("RLN_FM_NAME_V2")
+    fm = st.text_input("FM_NAME_V2 (EXACT MATCH)")
+    rln = st.text_input("RLN_FM_NM_V2 (EXACT MATCH)")
 
     if st.button("Search"):
 
+        fm_col = find_col(df, "FM_NAME_V2")
+        rln_col = find_col(df, "RLN_FM_NM_V2")
+
         result = df.copy()
 
-        fm_col = find_col(df, "FM_NAME_V2")
-        rln_col = find_col(df, "RLN_FM_NAME_V2")
+        # -----------------------
+        # EXACT MATCH LOGIC
+        # -----------------------
 
-        if fm and fm_col:
-            result = result[result[fm_col].astype(str).str.contains(fm, case=False, na=False)]
+        # 1️⃣ If BOTH fields entered → Exact match for both
+        if fm and rln:
+            result = result[
+                (result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()) &
+                (result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower())
+            ]
 
-        if rln and rln_col:
-            result = result[result[rln_col].astype(str).str.contains(rln, case=False, na=False)]
+        # 2️⃣ Only FM entered → Exact match for FM
+        elif fm:
+            result = result[
+                result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()
+            ]
+
+        # 3️⃣ Only RLN entered → Exact match for RLN
+        elif rln:
+            result = result[
+                result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower()
+            ]
 
         st.dataframe(result, use_container_width=True)
 
