@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import os
 
-st.set_page_config(page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002", layout="wide")
+st.set_page_config(page_title="திருப்பூர் மாவட்டம்  வாக்காளர் விபரம் 2002", layout="wide")
 
 # ============================
 #  CUSTOM CSS (Navy + Orange + Blink)
@@ -90,7 +90,7 @@ st.markdown("""
 # CENTER BLINK TITLE
 # ============================
 st.markdown(
-    "<h1 class='blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>",
+    "<h1 class='blink-title'>திருப்பூர் மாவட்டம் --> வாக்காளர் விபரம் 2002</h1>",
     unsafe_allow_html=True
 )
 
@@ -111,17 +111,17 @@ def find_col(df, name):
 # AC Map
 # ============================
 ac_map = {
-    "102-AVN": "102",
-    "111-UDM": "111",
-    "112-DPM": "112",
-    "113-VEL": "113",
-    "114-PON": "114",
-    "115-PDM": "115",
-    "116-TPR": "116",
-    "117-KGM": "117"
+    "102-அவினாசி": "102",
+    "111-உடுமலைபேட்டை": "111",
+    "112-தாராபுரம்": "112",
+    "113-வெள்ளகோவில்": "113",
+    "114-பொங்கலூர்": "114",
+    "115-பல்லடம்": "115",
+    "116-திருப்பூர்": "116",
+    "117-காங்கேயம்": "117"
 }
 
-selected_ac = st.selectbox("AC தேர்வு", list(ac_map.keys()), index=0)
+selected_ac = st.selectbox("சட்டமன்றத் தொகுதியை தேர்வு செய்யவும்", list(ac_map.keys()), index=0)
 
 # ============================
 # Load CSV
@@ -139,8 +139,8 @@ else:
 # ============================
 if df is not None:
 
-    fm = st.text_input("FM_NAME_V2 (EXACT MATCH)")
-    rln = st.text_input("RLN_FM_NM_V2 (EXACT MATCH)")
+    fm = st.text_input("பெயர் தமிழில் உள்ளீடு செய்யவும் (EXACT MATCH)")
+    rln = st.text_input("உறவினர் பெயர் தமிழில் உள்ளீடு செய்யவும் (EXACT MATCH)")
 
     col1, col2, col3 = st.columns([3, 2, 3])
 
@@ -154,7 +154,7 @@ if df is not None:
     if search:
 
         if not fm and not rln:
-            st.error("FM_NAME_V2 அல்லது RLN_FM_NM_V2 குறைந்தது ஒன்றையாவது உள்ளிடவும்!")
+            st.error("பெயர் அல்லது உறவினர் பெயரில் ஏதாவது ஒன்றையாவது உள்ளிடவும்!")
             st.stop()
 
         fm_col = find_col(df, "FM_NAME_V2")
@@ -185,3 +185,4 @@ if df is not None:
 
     if reset:
         st.rerun()
+
