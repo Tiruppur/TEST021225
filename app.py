@@ -10,12 +10,8 @@ st.set_page_config(page_title="திருப்பூர் மாவட்ட
 st.markdown("""
 <style>
 
-    /* PAGE BACKGROUND */
-    .stApp {
-        background-color: #001f3f !important;
-    }
+    .stApp { background-color: #001f3f !important; }
 
-    /* CENTER + BLINK TITLE */
     .blink-title {
         text-align: center;
         font-size: 48px;
@@ -24,51 +20,25 @@ st.markdown("""
         animation: blinker 2s linear infinite;
     }
 
-    @keyframes blinker {
-        50% { opacity: 0; }
-    }
+    @keyframes blinker { 50% { opacity: 0; } }
 
-    /* LABELS / TEXT WHITE */
     h2, h3, label, p, span, div {
         color: white !important;
         font-weight: bold !important;
     }
 
-    /* DROPDOWN BOX */
     div[data-baseweb="select"] > div {
         background-color: #00264d !important;
         border: 2px solid orange !important;
         border-radius: 6px !important;
     }
 
-    /* Selected text inside dropdown */
     div[data-baseweb="select"] span {
         color: orange !important;
         font-size: 18px !important;
         font-weight: bold !important;
     }
 
-    /* Dropdown menu background */
-    ul {
-        background-color: #001f3f !important;
-        border: 1px solid orange !important;
-    }
-
-    /* Dropdown items */
-    li {
-        color: white !important;
-        font-size: 18px !important;
-        font-weight: bold !important;
-    }
-
-    /* Hover item */
-    li:hover {
-        background-color: orange !important;
-        color: black !important;
-        font-weight: bold !important;
-    }
-
-    /* TEXT INPUT BOXES */
     .stTextInput>div>div>input {
         background-color: #00264d !important;
         color: orange !important;
@@ -78,7 +48,6 @@ st.markdown("""
         font-weight: bold !important;
     }
 
-    /* BUTTONS BIG + CENTER */
     div.stButton > button {
         background-color: #ff8c00 !important;
         color: black !important;
@@ -98,15 +67,12 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ============================
-# CENTER BLINK TITLE
+# BLINK TITLE
 # ============================
-st.markdown(
-    "<h1 class='blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>",
-    unsafe_allow_html=True
-)
+st.markdown("<h1 class='blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>", unsafe_allow_html=True)
 
 # ============================
-# Helper function
+# Helper
 # ============================
 def find_col(df, name):
     name = name.lower()
@@ -119,7 +85,7 @@ def find_col(df, name):
     return None
 
 # ============================
-# AC Map
+# AC MAP
 # ============================
 ac_map = {
     "102-AVN": "102",
@@ -135,7 +101,7 @@ ac_map = {
 selected_ac = st.selectbox("AC தேர்வு", list(ac_map.keys()), index=0)
 
 # ============================
-# Load CSV
+# LOAD CSV
 # ============================
 df = None
 csv_path = os.path.join("data", f"{ac_map[selected_ac]}.csv")
@@ -146,16 +112,14 @@ else:
     st.error("CSV கிடைக்கவில்லை!")
 
 # ============================
-# SEARCH LOGIC
+# SEARCH SECTION
 # ============================
 if df is not None:
 
     fm = st.text_input("FM_NAME_V2 (EXACT MATCH)")
     rln = st.text_input("RLN_FM_NM_V2 (EXACT MATCH)")
 
-    # BUTTONS CENTERED
-    col1, col2, col3 = st.columns([3, 2, 3])
-
+    col1, col2, col3 = st.columns([3,2,3])
     with col2:
         colA, colB = st.columns(2)
         with colA:
@@ -163,14 +127,11 @@ if df is not None:
         with colB:
             reset = st.button("Reset", use_container_width=True)
 
-    # ============================
-    # SEARCH RESULT
-    # ============================
     if search:
 
-        # ⭐ Block empty searches
+        # NO EMPTY SEARCH
         if not fm and not rln:
-            st.error("FM_NAME_V2 அல்லது RLN_FM_NM_V2 குறைந்தது ஒன்றையாவது உள்ளிடவும்!")
+            st.error("FM_NAME_V2 அல்லது RLN_FM_NM_V2 ஆகிய இரண்டில் ஒன்று கட்டாயம் உள்ளிட வேண்டும்!")
             st.stop()
 
         fm_col = find_col(df, "FM_NAME_V2")
@@ -181,23 +142,51 @@ if df is not None:
         # CASE 1: BOTH EXACT MATCH
         if fm and rln:
             result = result[
-                (result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()) &
-                (result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower())
+                (result[fm_col].astype(str).str.lower().str.strip() == fm.lower().strip()) &
+                (result[rln_col].astype(str).str.lower().str.strip() == rln.lower().strip())
             ]
 
         # CASE 2: FM ONLY
         elif fm:
             result = result[
-                result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()
+                result[fm_col].astype(str).str.lower().str.strip() == fm.lower().strip()
             ]
 
         # CASE 3: RLN ONLY
         elif rln:
             result = result[
-                result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower()
+                result[rln_col].astype(str).str.lower().str.strip() == rln.lower().strip()
             ]
 
         st.dataframe(result, use_container_width=True)
 
     if reset:
         st.rerun()
+
+# ===========================================
+# ⭐ EXTRA FEATURE → ENGLISH → TAMIL BOX
+# ===========================================
+st.subheader("English → Tamil Auto Convert")
+
+tamil_box = st.text_area("Type here in English (after SPACE it converts):", key="tam_box")
+
+# JavaScript – Auto Convert English → Tamil
+st.markdown("""
+<script src="https://www.google.com/jsapi"></script>
+<script>
+google.load("elements", "1", { packages: "transliteration" });
+
+function onLoad() {
+    var options = {
+        sourceLanguage: 'en',
+        destinationLanguage: ['ta'],
+        transliterationEnabled: true
+    };
+
+    var control = new google.elements.transliteration.TransliterationControl(options);
+    control.makeTransliteratable(['tam_box']);
+}
+
+google.setOnLoadCallback(onLoad);
+</script>
+""", unsafe_allow_html=True)
