@@ -2,69 +2,36 @@ import streamlit as st
 import pandas as pd
 import os
 
-# ============================
-# PAGE CONFIG + BLINK TITLE
-# ============================
 st.set_page_config(page_title="திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002", layout="wide")
 
-# Blinking Title CSS (2 sec)
-st.markdown("""
-<style>
-#blink-title {
-    animation: blink 2s infinite;
-}
-@keyframes blink {
-    0% {opacity: 1;}
-    50% {opacity: 0.2;}
-    100% {opacity: 1;}
-}
-</style>
-
-<h1 id="blink-title">திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>
-""", unsafe_allow_html=True)
-
-
-
 # ============================
-# PHONETIC TYPING SCRIPT
-# ============================
-st.markdown("""
-<script src="https://www.google.com/jsapi" type="text/javascript"></script>
-<script type="text/javascript">
-google.load("elements", "1", {packages: "transliteration"});
-
-function onLoad() {
-    var options = {
-        sourceLanguage: google.elements.transliteration.LanguageCode.ENGLISH,
-        destinationLanguage: ["ta"],    
-        transliterationEnabled: true
-    };
-
-    var control = new google.elements.transliteration.TransliterationControl(options);
-
-    // APPLY TAMIL PHONETIC FOR THESE INPUT FIELDS
-    control.makeTransliteratable(['fm_input', 'rln_input']);
-}
-
-google.setOnLoadCallback(onLoad);
-</script>
-""", unsafe_allow_html=True)
-
-
-
-# ============================
-# CUSTOM NAVY + ORANGE THEME
+#  CUSTOM CSS (Navy + Orange + Blink)
 # ============================
 st.markdown("""
 <style>
 
+    /* PAGE BACKGROUND */
     .stApp {
         background-color: #001f3f !important;
     }
 
-    h1, h2, h3, h4, h5, h6, label, p, span, div {
-        color: white !important;
+    /* CENTER + BLINK TITLE */
+    .blink-title {
+        text-align: center;
+        font-size: 48px;
         font-weight: bold;
+        color: orange;
+        animation: blinker 2s linear infinite;
+    }
+
+    @keyframes blinker {
+        50% { opacity: 0; }
+    }
+
+    /* LABELS / TEXT WHITE */
+    h2, h3, label, p, span, div {
+        color: white !important;
+        font-weight: bold !important;
     }
 
     /* DROPDOWN BOX */
@@ -74,38 +41,40 @@ st.markdown("""
         border-radius: 6px !important;
     }
 
-    /* Dropdown Text */
+    /* Selected text inside dropdown */
     div[data-baseweb="select"] span {
         color: orange !important;
-        font-size: 20px !important;
+        font-size: 18px !important;
         font-weight: bold !important;
     }
 
-    /* Dropdown Menu */
+    /* Dropdown menu background */
     ul {
         background-color: #001f3f !important;
         border: 1px solid orange !important;
     }
 
+    /* Dropdown items */
     li {
         color: white !important;
         font-size: 18px !important;
         font-weight: bold !important;
     }
 
+    /* Hover item */
     li:hover {
         background-color: orange !important;
         color: black !important;
         font-weight: bold !important;
     }
 
-    /* TEXT INPUT BOX STYLE */
+    /* TEXT INPUT BOXES */
     .stTextInput>div>div>input {
         background-color: #00264d !important;
         color: orange !important;
         border: 2px solid orange !important;
         border-radius: 6px !important;
-        font-size: 20px !important;
+        font-size: 18px !important;
         font-weight: bold !important;
     }
 
@@ -114,23 +83,29 @@ st.markdown("""
         background-color: #ff8c00 !important;
         color: black !important;
         border-radius: 6px !important;
-        border: 2px solid white !important;
         font-weight: bold !important;
+        border: 2px solid white !important;
     }
 
     .stButton>button:hover {
         background-color: #ffa733 !important;
-        color: black !important;
         border: 2px solid yellow !important;
+        color: black !important;
     }
 
 </style>
 """, unsafe_allow_html=True)
 
-
+# ============================
+# CENTER BLINK TITLE
+# ============================
+st.markdown(
+    "<h1 class='blink-title'>திருப்பூர் மாவட்டம் வாக்காளர் விபரம் 2002</h1>",
+    unsafe_allow_html=True
+)
 
 # ============================
-# HELPER FUNCTION
+# Helper function
 # ============================
 def find_col(df, name):
     name = name.lower()
@@ -142,10 +117,8 @@ def find_col(df, name):
             return col
     return None
 
-
-
 # ============================
-# AC Mapping
+# AC Map
 # ============================
 ac_map = {
     "102-AVN": "102",
@@ -158,16 +131,10 @@ ac_map = {
     "117-KGM": "117"
 }
 
-
-# ============================
-# AC DROPDOWN
-# ============================
 selected_ac = st.selectbox("AC தேர்வு", list(ac_map.keys()), index=0)
 
-
-
 # ============================
-# LOAD CSV
+# Load CSV
 # ============================
 df = None
 csv_path = os.path.join("data", f"{ac_map[selected_ac]}.csv")
@@ -177,15 +144,13 @@ if os.path.exists(csv_path):
 else:
     st.error("CSV கிடைக்கவில்லை!")
 
-
-
 # ============================
-# SEARCH INPUTS
+# SEARCH LOGIC
 # ============================
 if df is not None:
 
-    fm = st.text_input("FM_NAME_V2 (EXACT MATCH)", key="fm_input")
-    rln = st.text_input("RLN_FM_NM_V2 (EXACT MATCH)", key="rln_input")
+    fm = st.text_input("FM_NAME_V2 (EXACT MATCH)")
+    rln = st.text_input("RLN_FM_NM_V2 (EXACT MATCH)")
 
     if st.button("Search"):
 
@@ -194,25 +159,26 @@ if df is not None:
 
         result = df.copy()
 
-        # EXACT MATCH — THREE CONDITIONS
+        # BOTH EXACT MATCH
         if fm and rln:
             result = result[
                 (result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()) &
                 (result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower())
             ]
 
+        # FM ONLY
         elif fm:
             result = result[
                 result[fm_col].astype(str).str.strip().str.lower() == fm.strip().lower()
             ]
 
+        # RLN ONLY
         elif rln:
             result = result[
                 result[rln_col].astype(str).str.strip().str.lower() == rln.strip().lower()
             ]
 
         st.dataframe(result, use_container_width=True)
-
 
     if st.button("Reset"):
         st.rerun()
