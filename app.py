@@ -54,11 +54,17 @@ st.markdown("""
         padding: 12px 40px !important;
     }
 
-    /* Hide dataframe download and menu */
-    .stDataFrame div[data-testid="stElementToolbar"] {
-        display: none !important;
-    }
+</style>
+""", unsafe_allow_html=True)
 
+# ==================================
+# REMOVE DATAFRAME DOWNLOAD BUTTON
+# ==================================
+st.markdown("""
+<style>
+.stDataFrame div[data-testid="stElementToolbar"] {
+    display: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -100,7 +106,7 @@ ac_map = {
 }
 
 # ==================================
-# AC SELECTBOX (Default = Select AC)
+# AC DROPDOWN (DEFAULT: Select AC)
 # ==================================
 selected_ac = st.selectbox(
     "சட்டமன்றத் தொகுதியை தேர்வு செய்யவும்",
@@ -108,4 +114,69 @@ selected_ac = st.selectbox(
     index=0
 )
 
-if selected_ac == "Select A_
+if selected_ac == "Select AC":
+    st.warning("முதலில் சட்டமன்றத் தொகுதியை தேர்வு செய்யவும்.")
+    st.stop()
+
+# ==================================
+# LOAD PARQUET FILE
+# ==================================
+parquet_path = os.path.join("data", f"{ac_map[selected_ac]}.parquet")
+
+if not os.path.exists(parquet_path):
+    st.error("Parquet file கிடைக்கவில்லை!")
+    st.stop()
+
+df = pd.read_parquet(parquet_path)
+
+# ==================================
+# SEARCH INPUT
+# ==================================
+fm = st.text_input("வாக்காளரின் பெயர் (EXACT MATCH - 2002 பட்டியல்படி)")
+rln = st.text_input("உறவினர் பெயர் (EXACT MATCH - 2002 பட்டியல்படி)")
+
+col1, col2, col3 = st.columns([3, 2, 3])
+with col2:
+    colA, colB = st.columns(2)
+    with colA:
+        search = st.button("Search", use_container_width=True)
+    with colB:
+        reset = st.button("Reset", use_container_width=True)
+
+# ==================================
+# EXECUTE SEARCH
+# ==================================
+if search:
+
+    if not fm and not rln:
+        st.error("பெயர் அல்லது உறவினர் பெயரில் ஒன்றையாவது உள்ளிடவும்!")
+        st.stop()
+
+    fm_col = find_col(df, "FM_NAME_V2")
+    rln_col = find_col(df, "RLN_FM_NM_V2")
+
+    if not fm_col or not rln_col:
+        st.error("Column headers பொருந்தவில்லை! Parquet-ஐ சரிபார்க்கவும்.")
+        st.stop()
+
+    fm_clean = clean_text(fm)
+    rln_clean = clean_text(rln)
+
+    temp = df.copy()
+    temp["_fm"] = temp[fm_col].apply(clean_text)
+    temp["_rln"] = temp[rln_col].apply(clean_text)
+
+    if fm and rln:
+        result = temp[(temp["_fm"] == fm_clean) & (temp["_rln"] == rln_clean)]
+    elif fm:
+        result = temp[temp["_fm"] == fm_clean]
+    else:
+        result = temp[temp["_rln"] == rln_clean]
+
+    if result.empty:
+        st.warning("தகவல் எதுவும் கிடைக்கவில்லை. 2002 spelling-ஐ சரிபார்க்கவும்.")
+    else:
+        st.dataframe(result.drop(columns=["_fm", "_rln"]), use_container_width=True)
+
+if reset:
+    st.rerun()
