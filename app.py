@@ -5,9 +5,9 @@ import unicodedata
 
 st.set_page_config(page_title="திருப்பூர் மாவட்டம்  வாக்காளர் விபரம் 2002", layout="wide")
 
-# ==================================
-# SESSION STATE INITIALIZATION
-# ==================================
+# ================================
+# SESSION STATE INITIAL SETUP
+# ================================
 if "selected_ac" not in st.session_state:
     st.session_state.selected_ac = "Select AC"
 
@@ -70,7 +70,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==================================
-# REMOVE DATAFRAME DOWNLOAD BUTTON
+# REMOVE DataFrame DOWNLOAD BUTTON
 # ==================================
 st.markdown("""
 <style>
@@ -86,7 +86,7 @@ st.markdown("""
 st.markdown("<h1 class='blink-title'>திருப்பூர் மாவட்டம் --> வாக்காளர் விபரம் 2002</h1>", unsafe_allow_html=True)
 
 # ==================================
-# Helper — Clean Tamil Text
+# Helper — Tamil Clean Function
 # ==================================
 def clean_text(val):
     if pd.isna(val):
@@ -118,23 +118,22 @@ ac_map = {
 }
 
 # ==================================
-# AC DROPDOWN (Using Session State)
+# AC DROPDOWN
 # ==================================
 selected_ac = st.selectbox(
     "சட்டமன்றத் தொகுதியை தேர்வு செய்யவும்",
     ["Select AC"] + list(ac_map.keys()),
-    index=(["Select AC"] + list(ac_map.keys())).index(st.session_state.selected_ac),
     key="selected_ac"
 )
 
-if st.session_state.selected_ac == "Select AC":
+if selected_ac == "Select AC":
     st.warning("முதலில் சட்டமன்றத் தொகுதியை தேர்வு செய்யவும்.")
     st.stop()
 
 # ==================================
 # LOAD PARQUET FILE
 # ==================================
-parquet_path = os.path.join("data", f"{ac_map[st.session_state.selected_ac]}.parquet")
+parquet_path = os.path.join("data", f"{ac_map[selected_ac]}.parquet")
 
 if not os.path.exists(parquet_path):
     st.error("Parquet file கிடைக்கவில்லை!")
@@ -143,7 +142,7 @@ if not os.path.exists(parquet_path):
 df = pd.read_parquet(parquet_path)
 
 # ==================================
-# SEARCH INPUT BOXES (Session State)
+# SEARCH INPUT
 # ==================================
 fm = st.text_input("வாக்காளரின் பெயர் (EXACT MATCH - 2002 பட்டியல்படி)", key="fm")
 rln = st.text_input("உறவினர் பெயர் (EXACT MATCH - 2002 பட்டியல்படி)", key="rln")
@@ -189,10 +188,16 @@ if search:
     if result.empty:
         st.warning("தகவல் எதுவும் கிடைக்கவில்லை. 2002 spelling-ஐ சரிபார்க்கவும்.")
     else:
-        st.dataframe(result.drop(columns=["_fm", "_rln"]), use_container_width=True)
+        final_df = result.drop(columns=["_fm", "_rln"], errors="ignore")
+
+        # REMOVE COLUMN13–COLUMN31 (AUTOMATIC)
+        cols_to_remove = [col for col in final_df.columns if "column" in col.lower()]
+        final_df = final_df.drop(columns=cols_to_remove, errors="ignore")
+
+        st.dataframe(final_df, use_container_width=True)
 
 # ==================================
-# RESET EVERYTHING
+# RESET BUTTON
 # ==================================
 if reset:
     st.session_state.selected_ac = "Select AC"
