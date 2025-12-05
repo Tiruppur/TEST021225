@@ -6,6 +6,18 @@ import unicodedata
 st.set_page_config(page_title="திருப்பூர் மாவட்டம்  வாக்காளர் விபரம் 2002", layout="wide")
 
 # ==================================
+# SESSION STATE INITIALIZATION
+# ==================================
+if "selected_ac" not in st.session_state:
+    st.session_state.selected_ac = "Select AC"
+
+if "fm" not in st.session_state:
+    st.session_state.fm = ""
+
+if "rln" not in st.session_state:
+    st.session_state.rln = ""
+
+# ==================================
 # CUSTOM DARK THEME + ORANGE
 # ==================================
 st.markdown("""
@@ -106,22 +118,23 @@ ac_map = {
 }
 
 # ==================================
-# AC DROPDOWN (DEFAULT: Select AC)
+# AC DROPDOWN (Using Session State)
 # ==================================
 selected_ac = st.selectbox(
     "சட்டமன்றத் தொகுதியை தேர்வு செய்யவும்",
     ["Select AC"] + list(ac_map.keys()),
-    index=0
+    index=(["Select AC"] + list(ac_map.keys())).index(st.session_state.selected_ac),
+    key="selected_ac"
 )
 
-if selected_ac == "Select AC":
+if st.session_state.selected_ac == "Select AC":
     st.warning("முதலில் சட்டமன்றத் தொகுதியை தேர்வு செய்யவும்.")
     st.stop()
 
 # ==================================
 # LOAD PARQUET FILE
 # ==================================
-parquet_path = os.path.join("data", f"{ac_map[selected_ac]}.parquet")
+parquet_path = os.path.join("data", f"{ac_map[st.session_state.selected_ac]}.parquet")
 
 if not os.path.exists(parquet_path):
     st.error("Parquet file கிடைக்கவில்லை!")
@@ -130,10 +143,10 @@ if not os.path.exists(parquet_path):
 df = pd.read_parquet(parquet_path)
 
 # ==================================
-# SEARCH INPUT
+# SEARCH INPUT BOXES (Session State)
 # ==================================
-fm = st.text_input("வாக்காளரின் பெயர் (EXACT MATCH - 2002 பட்டியல்படி)")
-rln = st.text_input("உறவினர் பெயர் (EXACT MATCH - 2002 பட்டியல்படி)")
+fm = st.text_input("வாக்காளரின் பெயர் (EXACT MATCH - 2002 பட்டியல்படி)", key="fm")
+rln = st.text_input("உறவினர் பெயர் (EXACT MATCH - 2002 பட்டியல்படி)", key="rln")
 
 col1, col2, col3 = st.columns([3, 2, 3])
 with col2:
@@ -178,5 +191,11 @@ if search:
     else:
         st.dataframe(result.drop(columns=["_fm", "_rln"]), use_container_width=True)
 
+# ==================================
+# RESET EVERYTHING
+# ==================================
 if reset:
+    st.session_state.selected_ac = "Select AC"
+    st.session_state.fm = ""
+    st.session_state.rln = ""
     st.rerun()
