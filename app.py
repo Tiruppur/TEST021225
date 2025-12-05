@@ -17,6 +17,9 @@ if "fm" not in st.session_state:
 if "rln" not in st.session_state:
     st.session_state.rln = ""
 
+if "reset_trigger" not in st.session_state:
+    st.session_state.reset_trigger = False
+
 # ==================================
 # CUSTOM DARK THEME + ORANGE
 # ==================================
@@ -93,6 +96,7 @@ def clean_text(val):
         return ""
     return unicodedata.normalize("NFC", str(val).strip().lower())
 
+
 def find_col(df, name):
     name = name.lower()
     for col in df.columns:
@@ -116,6 +120,22 @@ ac_map = {
     "116-திருப்பூர்": "116",
     "117-காங்கேயம்": "117"
 }
+
+# ==================================
+# RESET BUTTON MUST BE ABOVE INPUTS
+# ==================================
+reset = st.button("Reset")
+
+if reset:
+    st.session_state.reset_trigger = True
+    st.session_state.selected_ac = "Select AC"
+    st.session_state.fm = ""
+    st.session_state.rln = ""
+    st.rerun()
+
+# Apply reset before drawing widgets
+if st.session_state.reset_trigger:
+    st.session_state.reset_trigger = False
 
 # ==================================
 # AC DROPDOWN
@@ -149,11 +169,7 @@ rln = st.text_input("உறவினர் பெயர் (EXACT MATCH - 2002 �
 
 col1, col2, col3 = st.columns([3, 2, 3])
 with col2:
-    colA, colB = st.columns(2)
-    with colA:
-        search = st.button("Search", use_container_width=True)
-    with colB:
-        reset = st.button("Reset", use_container_width=True)
+    search = st.button("Search", use_container_width=True)
 
 # ==================================
 # EXECUTE SEARCH
@@ -190,17 +206,8 @@ if search:
     else:
         final_df = result.drop(columns=["_fm", "_rln"], errors="ignore")
 
-        # REMOVE COLUMN13–COLUMN31 (AUTOMATIC)
+        # REMOVE COLUMN13–COLUMN31
         cols_to_remove = [col for col in final_df.columns if "column" in col.lower()]
         final_df = final_df.drop(columns=cols_to_remove, errors="ignore")
 
         st.dataframe(final_df, use_container_width=True)
-
-# ==================================
-# RESET BUTTON
-# ==================================
-if reset:
-    st.session_state.selected_ac = "Select AC"
-    st.session_state.fm = ""
-    st.session_state.rln = ""
-    st.rerun()
