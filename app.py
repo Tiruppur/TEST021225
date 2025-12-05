@@ -27,10 +27,16 @@ st.markdown("""
         50% { opacity: 0; }
     }
 
-    h2, h3, label, p, span, div {
+    label div {
         color: orange !important;
         font-weight: bold !important;
-    }
+        }
+
+      h2, h3,  p, span, div {
+        color: white !important;
+        font-weight: bold !important;
+        }
+        
 
     .stTextInput>div>div>input {
         background-color: #00264d !important;
@@ -152,4 +158,5 @@ if search:
 
 if reset:
     st.rerun()
+
 
