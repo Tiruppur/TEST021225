@@ -47,7 +47,7 @@ st.markdown("""
     }
 
     div.stButton > button {
-        background-color: #ff8c00 !important;
+        background-color: #FFFFFF !important;
         color: black !important;
         border-radius: 8px !important;
         font-size: 22px !important;
@@ -158,6 +158,7 @@ if search:
 
 if reset:
     st.rerun()
+
 
 
 
