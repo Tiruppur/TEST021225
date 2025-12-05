@@ -28,7 +28,7 @@ st.markdown("""
     }
 
     h2, h3, label, p, span, div {
-        color: white !important;
+        color: orange !important;
         font-weight: bold !important;
     }
 
@@ -152,3 +152,4 @@ if search:
 
 if reset:
     st.rerun()
+
