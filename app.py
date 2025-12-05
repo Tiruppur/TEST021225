@@ -3,7 +3,7 @@ import pandas as pd
 import os
 import unicodedata
 
-st.set_page_config(page_title="திருப்பூர் மாவட்டம்  வாக்காளர் விபரம் 2002", layout="wide")
+st.set_page_config(page_title="வாக்காளர் விபரம் 2002", layout="wide")
 
 # ==================================
 # CUSTOM DARK THEME + ORANGE
@@ -32,11 +32,10 @@ st.markdown("""
         font-weight: bold !important;
         }
 
-      h2, h3,  p, span, div {
+    h2, h3, p, span, div {
         color: orange !important;
         font-weight: bold !important;
-        }
-        
+    }
 
     .stTextInput>div>div>input {
         background-color: #00264d !important;
@@ -55,6 +54,18 @@ st.markdown("""
         padding: 12px 40px !important;
     }
 
+</style>
+""", unsafe_allow_html=True)
+
+# ==================================
+# REMOVE DATAFRAME DOWNLOAD BUTTON
+# ==================================
+st.markdown("""
+<style>
+/* Hide dataframe menu (⋯) including download option */
+.stDataFrame div[data-testid="stElementToolbar"] {
+    display: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -118,8 +129,10 @@ rln = st.text_input("உறவினர் பெயர் (EXACT MATCH - 2002 �
 col1, col2, col3 = st.columns([3, 2, 3])
 with col2:
     colA, colB = st.columns(2)
-    with colA: search = st.button("Search", use_container_width=True)
-    with colB: reset = st.button("Reset", use_container_width=True)
+    with colA: 
+        search = st.button("Search", use_container_width=True)
+    with colB: 
+        reset = st.button("Reset", use_container_width=True)
 
 # ==================================
 # EXECUTE SEARCH
@@ -158,7 +171,3 @@ if search:
 
 if reset:
     st.rerun()
-
-
-
-
